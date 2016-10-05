@@ -1,403 +1,1 @@
-/* ======================================
- * https://github.com/adamdehaven/Specify
- *
- * Adam Dehaven ( @adamdehaven )
- * http://adamdehaven.com/
- *
- * ======================================
-*/
-
-
-if (app.documents.length > 0) {
-
-	// Create empty dialog window
-	var specifyDialogBox = new Window('dialog', 'Specify');
-	specifyDialogBox.frameLocation = [500,400];
-	specifyDialogBox.size = [350,150];
-
-	specifyDialogBox.intro = specifyDialogBox.add('statictext', [20,10,310,50] );
-	specifyDialogBox.intro.text = 'Select which dimension to specify:';
-
-	specifyDialogBox.where = specifyDialogBox.add('dropdownlist', [20,50,100,40] );
-	specifyDialogBox.where.selection = specifyDialogBox.where.add('item', 'Top');
-	specifyDialogBox.where.add('item', 'Right');
-	specifyDialogBox.where.add('item', 'Bottom');
-	specifyDialogBox.where.add('item', 'Left');
-
-	specifyDialogBox.units = specifyDialogBox.add('checkbox', [140,54,300,90], 'Include units label');
-	specifyDialogBox.units.value = true;
-
-	specifyDialogBox.btn = specifyDialogBox.add('button', [140,100,280,140], 'Specify Object(s) ▸', 'spec');
-
-	// document
-	var doc = activeDocument;
-
-	// count selected items
-	var selectedItems = parseInt( doc.selection.length ) || 0;
-
-	// spec layer
-	try {
-		var specsLayer = doc.layers['SPECS'];
-	} catch(err) {
-		var specsLayer = doc.layers.add();
-		specsLayer.name = 'SPECS';
-	}
-
-
-
-	// measurement line and text color in RGB
-	var color = new RGBColor;
-	color.red = 255;
-	color.green = 51;
-	color.blue = 255;
-
-	// gap between measurement lines and object
-	var gap = 2;
-
-	// size of perpendicular measurement lines.
-	var size = 6;
-
-	// number of decimal places in measurement
-	var decimals = 3;
-
-	// pixels per inch
-	var dpi = 300;
-
-	/**
-		Start the spec
-	*/
-	function startSpec() {
-
-		if (selectedItems == 1) {
-			specSingle( doc.selection[0].geometricBounds, specifyDialogBox.where.selection.text );
-		} else if (selectedItems == 2) {
-			specDouble( doc.selection[0], doc.selection[1], specifyDialogBox.where.selection.text );
-		} else {
-			alert('Please select at least 1 or 2 items.');
-		}
-
-		specifyDialogBox.close();
-	}
-
-
-
-
-	/**
-		Spec the gap between 2 elements
-	*/
-	function specDouble( item1, item2, where ) {
-
-		var bound = new Array(0,0,0,0);
-
-		var a =  item1.geometricBounds;
-		var b =  item2.geometricBounds;
-
-		if (where=='Top' || where=='Bottom') {
-
-			if (b[0]>a[0]) { // item 2 on right,
-
-				if (b[0]>a[2]) { // no overlap
-					bound[0] =a[2];
-					bound[2] = b[0];
-				} else { // overlap
-					bound[0] =b[0];
-					bound[2] = a[2];
-				}
-			} else if (a[0]>=b[0]){ // item 1 on right
-
-				if (a[0]>b[2]) { // no overlap
-					bound[0] =b[2];
-					bound[2] = a[0];
-				} else { // overlap
-					bound[0] =a[0];
-					bound[2] = b[2];
-				}
-			}
-
-			bound[1] = Math.max (a[1], b[1]);
-			bound[3] = Math.min (a[3], b[3]);
-
-		} else {
-
-			if (b[3]>a[3]) { // item 2 on top
-				if (b[3]>a[1]) { // no overlap
-					bound[3] =a[1];
-					bound[1] = b[3];
-				} else { // overlap
-					bound[3] =b[3];
-					bound[1] = a[1];
-				}
-			} else if (a[3]>=b[3]){ // item 1 on top
-
-				if (a[3]>b[1]) { // no overlap
-					bound[3] =b[1];
-					bound[1] = a[3];
-				} else { // overlap
-					bound[3] =a[3];
-					bound[1] = b[1];
-				}
-			}
-
-			bound[0] = Math.min(a[0], b[0]);
-			bound[2] = Math.max (a[2], b[2]);
-		}
-		specSingle(bound, where );
-	}
-
-
-	/**
-		spec a single object
-		@param bound item.geometricBound
-		@param where 'Top', 'Right', 'Bottom,' 'Left'
-	*/
-	function specSingle( bound, where ) {
-
-		specsLayer.locked = false;
-
-		// width and height
-		var w = bound[2]-bound[0];
-		var h = bound[1]-bound[3];
-
-		// a & b are the horizontal or vertical positions that change
-		// c is the horizontal or vertical position that doesn't change
-		var a = bound[0];
-		var b = bound[2];
-		var c = bound[1];
-
-		// xy='x' (horizontal measurement), xy='y' (vertical measurement)
-		var xy = 'x';
-
-		// a direction flag for placing the measurement lines.
-		var dir = 1;
-
-		switch( where ) {
-
-			case 'Top':
-				a = bound[0];
-				b = bound[2];
-				c = bound[1];
-				xy = 'x';
-				dir = 1;
-				break;
-
-			case 'Right':
-				a = bound[1];
-				b = bound[3];
-				c = bound[2];
-				xy = 'y';
-				dir = 1;
-				break;
-
-			case 'Bottom':
-				a = bound[0];
-				b = bound[2];
-				c = bound[3];
-				xy = 'x';
-				dir = -1;
-				break;
-
-			case 'Left':
-				a = bound[1];
-				b = bound[3];
-				c = bound[0];
-				xy = 'y';
-				dir = -1;
-				break;
-
-
-
-		}
-
-		// create the measurement lines
-		var lines = new Array();
-
-		// horizontal measurement
-		if (xy=='x') {
-
-			// 2 vertical lines
-			lines[0]= new Array( new Array(a, c+(gap)*dir) );
-			lines[0].push ( new Array(a, c+(gap+size)*dir) );
-			lines[1]= new Array( new Array(b, c+(gap)*dir) );
-			lines[1].push( new Array(b, c+(gap+size)*dir) );
-
-			// 1 horizontal line
-			lines[2]= new Array( new Array(a, c+(gap+size/2)*dir ) );
-			lines[2].push( new Array(b, c+(gap+size/2)*dir ) );
-
-			// create text label
-			if (where=='Top') {
-				var t = specLabel( w, (a+b)/2, lines[0][1][1], color );
-				t.top += t.height;
-			} else {
-				var t = specLabel( w, (a+b)/2, lines[0][0][1], color );
-				t.top -= t.height;
-			}
-			t.left -= t.width/2;
-
-		// vertical measurement
-		} else {
-
-			// 2 horizontal lines
-			lines[0]= new Array( new Array( c+(gap)*dir, a) );
-			lines[0].push ( new Array( c+(gap+size)*dir, a) );
-			lines[1]= new Array( new Array( c+(gap)*dir, b) );
-			lines[1].push( new Array( c+(gap+size)*dir, b) );
-
-			//1 vertical line
-			lines[2]= new Array( new Array(c+(gap+size/2)*dir, a) );
-			lines[2].push( new Array(c+(gap+size/2)*dir, b) );
-
-			// create text label
-			if (where=='Left') {
-				var t = specLabel( h, lines[0][1][0], (a+b)/2, color );
-				t.left -= t.width;
-			} else {
-				var t = specLabel( h, lines[0][0][0], (a+b)/2, color );
-				t.left += size;
-			}
-			t.top += t.height/2;
-		}
-
-		// draw the lines
-		var specgroup = new Array(t);
-
-		for (var i=0; i<lines.length; i++) {
-			var p = doc.pathItems.add();
-			p.setEntirePath ( lines[i] );
-			setLineStyle( p, color );
-			specgroup.push( p );
-		}
-
-		group(specsLayer, specgroup );
-
-		specsLayer.locked = true;
-
-	}
-
-
-	/**
-		Create a text label that specify the dimension
-	*/
-	function specLabel( val, x, y, color) {
-
-			var t = doc.textFrames.add();
-			t.textRange.characterAttributes.size = 8;
-			t.textRange.characterAttributes.alignment = StyleRunAlignmentType.center;
-			t.textRange.characterAttributes.fillColor = color;
-
-			// Conversions : http://wwwimages.adobe.com/content/dam/Adobe/en/devnet/illustrator/sdk/CC2014/Illustrator%20Scripting%20Guide.pdf
-			// UnitValue object (page 230): http://wwwimages.adobe.com/content/dam/Adobe/en/devnet/scripting/pdfs/javascript_tools_guide.pdf
-
-			var displayUnitsLabel = specifyDialogBox.units.value;
-			var v = val;
-			var unitsLabel = '';
-
-			switch (doc.rulerUnits) {
-
-				case RulerUnits.Picas:
-					v = new UnitValue(v, "pt").as("pc");
-					var vd = v - Math.floor (v);
-					vd = 12*vd;
-					v =  Math.floor(v)+'p'+vd.toFixed (decimals);
-					break;
-
-				case RulerUnits.Inches:
-					v = new UnitValue(v, "pt").as("in");
-					v = v.toFixed (decimals);
-					unitsLabel = " in"; // add abbreviation
-					break;
-
-				case RulerUnits.Millimeters:
-					v = new UnitValue(v, "pt").as("mm");
-					v = v.toFixed (decimals);
-					unitsLabel = " mm"; // add abbreviation
-					break;
-
-				case RulerUnits.Centimeters:
-					v = new UnitValue(v, "pt").as("cm");
-					v = v.toFixed (decimals);
-					unitsLabel = " cm"; // add abbreviation
-					break;
-
-				case RulerUnits.Pixels:
-					v = new UnitValue(v, "pt").as("px");
-					v = v.toFixed (decimals);
-					unitsLabel = " px"; // add abbreviation
-					break;
-
-				default:
-					v = new UnitValue(v, "pt").as("pt");
-					v = v.toFixed (decimals);
-					unitsLabel = " pt"; // add abbreviation
-			}
-
-			if(displayUnitsLabel) {
-				t.contents = v + unitsLabel;
-			} else {
-				t.contents = v;
-			}
-			t.top = y;
-			t.left = x;
-
-			return t;
-
-	}
-
-	function setLineStyle(path, color) {
-			path.filled = false;
-			path.stroked = true;
-			path.strokeColor = color;
-			path.strokeWidth = 0.5;
-
-			return path;
-	}
-
-
-	/**
-	* Group items in a layer
-	*/
-	function group( layer, items, isDuplicate) {
-
-		// create new group
-		var gg = layer.groupItems.add();
-
-		// add to group
-		// reverse count, because items length is reduced as items are moved to new group
-		for(var i=items.length-1; i>=0; i--) {
-
-			if (items[i]!=gg) { // don't group the group itself
-				if (isDuplicate) {
-					newItem = items[i].duplicate (gg, ElementPlacement.PLACEATBEGINNING);
-				} else {
-					items[i].move( gg, ElementPlacement.PLACEATBEGINNING );
-				}
-			}
-		}
-
-		return gg;
-	}
-
-	/*
-	** ======================================
-	** RUN SCRIPT
-	** ======================================
-	*/
-	switch (selectedItems) {
-		case 0:
-			beep();
-			alert('Please select 1 or 2 items and try again.');
-			break;
-		case 1:
-		case 2:
-			specifyDialogBox.btn.addEventListener ('click', startSpec );
-			specifyDialogBox.show();
-			break;
-		default:
-			beep();
-			alert('You have more than 2 items selected. \nPlease select only 1 or 2 items and try again.');
-			break;
-	}
-
-} else { // No active document
-	alert('There are no objects to Specify. \nPlease open a document.')
-}
+﻿/** * Specify * ======= * Version: 1.1 * https://github.com/adamdehaven/Specify * * Adam DeHaven * http://adamdehaven.com * @adamdehaven * * Additional info:  * http://adamdehaven.com/blog/2015/05/dimension-adobe-illustrator-designs-with-a-simple-script/ * ==================== */if (app.documents.length > 0) {     // document     var doc = activeDocument;     // count selected items     var selectedItems = parseInt(doc.selection.length, 10) || 0;     /*=====================================     =            Create Dialog            =     =====================================*/     var specifyDialogBox = new Window('dialog', 'Specify');     specifyDialogBox.alignChildren = "left";     // Dimension panel     specifyDialogBox.dimensionPanel = specifyDialogBox.add('panel', undefined, "Select which dimension(s) to specify");     specifyDialogBox.dimensionPanel.orientation = "column";     specifyDialogBox.dimensionPanel.margins = 20;     // Dimension group     specifyDialogBox.dimensionGroup = specifyDialogBox.dimensionPanel.add('group');     specifyDialogBox.dimensionGroup.orientation = "row";     // Add dimension panel checkboxes     // Top     (specifyDialogBox.topCheckbox = specifyDialogBox.dimensionGroup.add('checkbox', undefined, 'Top')).helpTip = "Dimension the top\nside of the object(s).";     specifyDialogBox.topCheckbox.value = false;     // Right     (specifyDialogBox.rightCheckbox = specifyDialogBox.dimensionGroup.add('checkbox', undefined, 'Right')).helpTip = "Dimension the right\nside of the object(s).";     specifyDialogBox.rightCheckbox.value = false;     // Bottom     (specifyDialogBox.bottomCheckbox = specifyDialogBox.dimensionGroup.add('checkbox', undefined, 'Bottom')).helpTip = "Dimension the bottom\nside of the object(s).";     specifyDialogBox.bottomCheckbox.value = false;     // Left     (specifyDialogBox.leftCheckbox = specifyDialogBox.dimensionGroup.add('checkbox', undefined, 'Left')).helpTip = "Dimension the left\nside of the object(s).";     specifyDialogBox.leftCheckbox.value = false;     specifyDialogBox.selectAllGroup = specifyDialogBox.dimensionPanel.add('group');     specifyDialogBox.selectAllGroup.orientation = "row";     // Select All     (specifyDialogBox.selectAllCheckbox = specifyDialogBox.selectAllGroup.add('checkbox', undefined, 'Select All')).helpTip = "Dimension all sides\nof the object(s).";     specifyDialogBox.selectAllCheckbox.value = false;     specifyDialogBox.selectAllCheckbox.onClick = function(){        if(specifyDialogBox.selectAllCheckbox.value) {            // Select All is checked            specifyDialogBox.topCheckbox.value = true;            specifyDialogBox.topCheckbox.enabled = false;            specifyDialogBox.rightCheckbox.value = true;            specifyDialogBox.rightCheckbox.enabled = false;            specifyDialogBox.bottomCheckbox.value = true;            specifyDialogBox.bottomCheckbox.enabled = false;            specifyDialogBox.leftCheckbox.value = true;            specifyDialogBox.leftCheckbox.enabled = false;        } else {            // Select All is unchecked            specifyDialogBox.topCheckbox.value = false;            specifyDialogBox.topCheckbox.enabled = true;            specifyDialogBox.rightCheckbox.value = false;            specifyDialogBox.rightCheckbox.enabled = true;            specifyDialogBox.bottomCheckbox.value = false;            specifyDialogBox.bottomCheckbox.enabled = true;            specifyDialogBox.leftCheckbox.value = false;            specifyDialogBox.leftCheckbox.enabled = true;        }     }     // Options panel     specifyDialogBox.optionsPanel = specifyDialogBox.add('panel', undefined, "Options");     specifyDialogBox.optionsPanel.orientation = "column";     specifyDialogBox.optionsPanel.margins = 20;     specifyDialogBox.optionsPanel.alignChildren = "left";     // Add options panel checkboxes     (specifyDialogBox.units = specifyDialogBox.optionsPanel.add('checkbox', undefined, 'Include units label')).helpTip = "When checked, inserts the units label\nalongside the outputted dimension.\nExample: 220 px";     specifyDialogBox.units.value = true;     // If exactly 2 objects are selected, give user option to dimension BETWEEN them     if(selectedItems == 2) {        (specifyDialogBox.between = specifyDialogBox.optionsPanel.add('checkbox', undefined, 'Dimension between objects')).helpTip = "When checked, return the\ndistance between the 2 objects\nfor the selected dimensions.";        specifyDialogBox.between.value = false;     }     // Add font-size box     specifyDialogBox.fontGroup = specifyDialogBox.optionsPanel.add('group');     specifyDialogBox.fontGroup.orientation = "row";     specifyDialogBox.fontLabel = specifyDialogBox.fontGroup.add('statictext', undefined, 'Font size:');     (specifyDialogBox.fontSizeInput = specifyDialogBox.fontGroup.add('edittext', undefined, '8')).helpTip = "Enter the desired font size\nfor the spec label(s).\nDefault: 8";     specifyDialogBox.fontSizeInput.characters = 4;     specifyDialogBox.fontSizeInput.onChanging = function(){        numericFilter = /([0-9]*)/; //this one does not allow to input anything but numbers and some symbols;        this.text = this.text.match(numericFilter)[0];     }     // Button group     specifyDialogBox.buttonGroup = specifyDialogBox.add('group');     specifyDialogBox.buttonGroup.orientation = "row";     specifyDialogBox.buttonGroup.margins = 20;     // Cancel button     specifyDialogBox.cancelButton = specifyDialogBox.buttonGroup.add('button', undefined, 'Cancel');     specifyDialogBox.cancelButton.onClick = function(){        specifyDialogBox.close();     }     // Specify button     specifyDialogBox.actionButton = specifyDialogBox.buttonGroup.add('button', undefined, 'Specify Object(s)');     specifyDialogBox.actionButton.addEventListener ('click', startSpec );     /*=====  End of Create Dialog  ======*/     // SPEC layer     try {          var specsLayer = doc.layers['SPECS'];     } catch(err) {          var specsLayer = doc.layers.add();          specsLayer.name = 'SPECS';     }     // measurement line and text color in RGB     var color = new RGBColor;     color.red = 255;     color.green = 51;     color.blue = 255;     // gap between measurement lines and object     var gap = 4;     // size of perpendicular measurement lines.     var size = 6;     // number of decimal places in measurement     var decimals = 3;     // pixels per inch     var dpi = 300;     // Start the spec     function startSpec() {          // Add all selected objects to array          var objectsToSpec = new Array();          for(var index=doc.selection.length-1; index>=0; index--) {               objectsToSpec[index] = doc.selection[index];          }          // Fetch desired dimensions          var top = specifyDialogBox.topCheckbox.value;          var left = specifyDialogBox.leftCheckbox.value;          var right = specifyDialogBox.rightCheckbox.value;          var bottom = specifyDialogBox.bottomCheckbox.value;          // Take focus away from fontSizeInput to validate (numeric)          specifyDialogBox.fontSizeInput.active = false;          // Set bool for fontSizeInput = numeric          var validFontSize = /^[0-9]+$/.test(specifyDialogBox.fontSizeInput.text);          if (selectedItems < 1) {               beep();               alert('Please select at least 1 object and try again.');               // Close dialog               specifyDialogBox.close();          } else if(!top && !left && !right && !bottom) {              beep();              alert('Please select at least 1 dimension to draw.');          } else if(!validFontSize) {              // If fontSizeInput.text is not numeric              beep();              alert('Please enter a valid font size. Default: 8');              specifyDialogBox.fontSizeInput.active = true;              specifyDialogBox.fontSizeInput.text = 8;          } else if(parseInt(specifyDialogBox.fontSizeInput.text, 10) < 1) {              beep();              alert('Font size must be greater than zero.');              specifyDialogBox.fontSizeInput.active = true;          } else if (selectedItems == 2 && specifyDialogBox.between.value) {               if(top) specDouble( objectsToSpec[0], objectsToSpec[1], "Top" );               if(left) specDouble( objectsToSpec[0], objectsToSpec[1], "Left" );               if(right) specDouble( objectsToSpec[0], objectsToSpec[1], "Right" );               if(bottom) specDouble( objectsToSpec[0], objectsToSpec[1], "Bottom" );               // Close dialog when finished               specifyDialogBox.close();          } else {               // Iterate over each selected object, creating individual dimensions as you go               for(var objIndex=objectsToSpec.length-1; objIndex>=0; objIndex--){                   if(top) specSingle( objectsToSpec[objIndex].geometricBounds, "Top" );                   if(left) specSingle( objectsToSpec[objIndex].geometricBounds, "Left" );                   if(right) specSingle( objectsToSpec[objIndex].geometricBounds, "Right" );                   if(bottom) specSingle( objectsToSpec[objIndex].geometricBounds, "Bottom" );               }               // Close dialog when finished               specifyDialogBox.close();          }     }     // spec a single object     function specSingle( bound, where ) {          specsLayer.locked = false;          // width and height          var w = bound[2]-bound[0];          var h = bound[1]-bound[3];          // a & b are the horizontal or vertical positions that change          // c is the horizontal or vertical position that doesn't change          var a = bound[0];          var b = bound[2];          var c = bound[1];          // xy='x' (horizontal measurement), xy='y' (vertical measurement)          var xy = 'x';          // a direction flag for placing the measurement lines.          var dir = 1;          switch( where ) {               case 'Top':                    a = bound[0];                    b = bound[2];                    c = bound[1];                    xy = 'x';                    dir = 1;                    break;               case 'Right':                    a = bound[1];                    b = bound[3];                    c = bound[2];                    xy = 'y';                    dir = 1;                    break;               case 'Bottom':                    a = bound[0];                    b = bound[2];                    c = bound[3];                    xy = 'x';                    dir = -1;                    break;               case 'Left':                    a = bound[1];                    b = bound[3];                    c = bound[0];                    xy = 'y';                    dir = -1;                    break;          }          // create the measurement lines          var lines = new Array();          // horizontal measurement          if (xy=='x') {               // 2 vertical lines               lines[0]= new Array( new Array(a, c+(gap)*dir) );               lines[0].push ( new Array(a, c+(gap+size)*dir) );               lines[1]= new Array( new Array(b, c+(gap)*dir) );               lines[1].push( new Array(b, c+(gap+size)*dir) );               // 1 horizontal line               lines[2]= new Array( new Array(a, c+(gap+size/2)*dir ) );               lines[2].push( new Array(b, c+(gap+size/2)*dir ) );               // create text label               if (where=='Top') {                    var t = specLabel( w, (a+b)/2, lines[0][1][1], color );                    t.top += t.height;               } else {                    var t = specLabel( w, (a+b)/2, lines[0][0][1], color );                    t.top -= t.height;               }               t.left -= t.width/2;          // vertical measurement          } else {               // 2 horizontal lines               lines[0]= new Array( new Array( c+(gap)*dir, a) );               lines[0].push ( new Array( c+(gap+size)*dir, a) );               lines[1]= new Array( new Array( c+(gap)*dir, b) );               lines[1].push( new Array( c+(gap+size)*dir, b) );               //1 vertical line               lines[2]= new Array( new Array(c+(gap+size/2)*dir, a) );               lines[2].push( new Array(c+(gap+size/2)*dir, b) );               // create text label               if (where=='Left') {                    var t = specLabel( h, lines[0][1][0], (a+b)/2, color );                    t.left -= t.width;               } else {                    var t = specLabel( h, lines[0][0][0], (a+b)/2, color );                    t.left += size;               }               t.top += t.height/2;          }          // draw the lines          var specgroup = new Array(t);          for (var i=0; i<lines.length; i++) {               var p = doc.pathItems.add();               p.setEntirePath ( lines[i] );               setLineStyle( p, color );               specgroup.push( p );          }          group(specsLayer, specgroup );          specsLayer.locked = true;     }      // Spec the gap between 2 elements     function specDouble( item1, item2, where ) {          var bound = new Array(0,0,0,0);          var a =  item1.geometricBounds;          var b =  item2.geometricBounds;          if (where=='Top' || where=='Bottom') {               if (b[0]>a[0]) { // item 2 on right,                    if (b[0]>a[2]) { // no overlap                         bound[0] =a[2];                         bound[2] = b[0];                    } else { // overlap                         bound[0] =b[0];                         bound[2] = a[2];                    }               } else if (a[0]>=b[0]){ // item 1 on right                    if (a[0]>b[2]) { // no overlap                         bound[0] =b[2];                         bound[2] = a[0];                    } else { // overlap                         bound[0] =a[0];                         bound[2] = b[2];                    }               }               bound[1] = Math.max (a[1], b[1]);               bound[3] = Math.min (a[3], b[3]);          } else {               if (b[3]>a[3]) { // item 2 on top                    if (b[3]>a[1]) { // no overlap                         bound[3] =a[1];                         bound[1] = b[3];                    } else { // overlap                         bound[3] =b[3];                         bound[1] = a[1];                    }               } else if (a[3]>=b[3]){ // item 1 on top                    if (a[3]>b[1]) { // no overlap                         bound[3] =b[1];                         bound[1] = a[3];                    } else { // overlap                         bound[3] =a[3];                         bound[1] = b[1];                    }               }               bound[0] = Math.min(a[0], b[0]);               bound[2] = Math.max (a[2], b[2]);          }          specSingle(bound, where );     }     // Create a text label that specify the dimension     function specLabel( val, x, y, color) {               var t = doc.textFrames.add();               // Get font size from specifyDialogBox.fontSizeInput               var labelFontSize;               if( parseInt(specifyDialogBox.fontSizeInput.text) > 0) {                   labelFontSize = parseInt(specifyDialogBox.fontSizeInput.text);               } else {                   labelFontSize = 8;               }               t.textRange.characterAttributes.size = labelFontSize;               t.textRange.characterAttributes.alignment = StyleRunAlignmentType.center;               t.textRange.characterAttributes.fillColor = color;               // Conversions : http://wwwimages.adobe.com/content/dam/Adobe/en/devnet/illustrator/sdk/CC2014/Illustrator%20Scripting%20Guide.pdf               // UnitValue object (page 230): http://wwwimages.adobe.com/content/dam/Adobe/en/devnet/scripting/pdfs/javascript_tools_guide.pdf               var displayUnitsLabel = specifyDialogBox.units.value;               var v = val;               var unitsLabel = '';               switch (doc.rulerUnits) {                    case RulerUnits.Picas:                         v = new UnitValue(v, "pt").as("pc");                         var vd = v - Math.floor (v);                         vd = 12*vd;                         v =  Math.floor(v)+'p'+vd.toFixed (decimals);                         break;                    case RulerUnits.Inches:                         v = new UnitValue(v, "pt").as("in");                         v = v.toFixed (decimals);                         unitsLabel = " in"; // add abbreviation                         break;                    case RulerUnits.Millimeters:                         v = new UnitValue(v, "pt").as("mm");                         v = v.toFixed (decimals);                         unitsLabel = " mm"; // add abbreviation                         break;                    case RulerUnits.Centimeters:                         v = new UnitValue(v, "pt").as("cm");                         v = v.toFixed (decimals);                         unitsLabel = " cm"; // add abbreviation                         break;                    case RulerUnits.Pixels:                         v = new UnitValue(v, "pt").as("px");                         v = v.toFixed (decimals);                         unitsLabel = " px"; // add abbreviation                         break;                    default:                         v = new UnitValue(v, "pt").as("pt");                         v = v.toFixed (decimals);                         unitsLabel = " pt"; // add abbreviation               }               if(displayUnitsLabel) {                    t.contents = v + unitsLabel;               } else {                    t.contents = v;               }               t.top = y;               t.left = x;               return t;     }     function setLineStyle(path, color) {               path.filled = false;               path.stroked = true;               path.strokeColor = color;               path.strokeWidth = 0.5;               return path;     }     // Group items in a layer     function group( layer, items, isDuplicate) {          // create new group          var gg = layer.groupItems.add();          // add to group          // reverse count, because items length is reduced as items are moved to new group          for(var i=items.length-1; i>=0; i--) {               if (items[i]!=gg) { // don't group the group itself                    if (isDuplicate) {                         newItem = items[i].duplicate (gg, ElementPlacement.PLACEATBEGINNING);                    } else {                         items[i].move( gg, ElementPlacement.PLACEATBEGINNING );                    }               }          }          return gg;     }     /*     ** ======================================     ** RUN SCRIPT     ** ======================================     */     switch (selectedItems) {          case 0:               beep();               alert('Please select at least 1 object and try again.');               break;          default:               specifyDialogBox.show();               break;     }} else { // No active document     alert('There are no objects to Specify. \nPlease open a document to continue.')}
