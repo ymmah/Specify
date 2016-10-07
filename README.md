@@ -21,7 +21,7 @@ Alternatively, you may save the script in a folder of your choosing.
 2. Must have at least 1 object selected via Illustrator's Selection Tool (V) or Direct Selection Tool (A)
 
 ## HOW TO RUN
-If you saved the script as [described above](#save-to-default-scripts), you should be able to run the script (after selecting one or two objects in the document) by navigating within Illustrator to:
+If you saved the script as [described above](#save-to-default-scripts), you should be able to run the script (after selecting object(s) in the document) by navigating within Illustrator to:
 ```
 File > Scripts > Specify
 ```
