@@ -6,7 +6,7 @@ Illustrator script to specify the dimensions single or multiple objects, or to s
 [![GitHub issues](https://img.shields.io/github/issues/adamdehaven/Specify.svg?maxAge=3600)](https://github.com/adamdehaven/Specify/issues) 
 [![license](https://img.shields.io/github/license/adamdehaven/Specify.svg?maxAge=3600)](https://raw.githubusercontent.com/adamdehaven/Specify/master/LICENSE)
 
-![specify-dialog](https://raw.githubusercontent.com/adamdehaven/Specify/master/specify-example-with-units.jpg)
+![specify-dialog](https://raw.githubusercontent.com/adamdehaven/Specify/master/specify-example.jpg)
 
 ##### Save to Default Scripts
 > To allow the script to show as an option within the default `Scripts` menu, save the script in the following location _(path shown is for Mac. Your actual path may vary)_
@@ -48,7 +48,7 @@ The script automatically dimensions objects based on the Document's default unit
 > 1. In your document, select show Rulers via `View > Rulers > Show Rulers` ( <kbd>⌘Cmd</kbd> + <kbd>R</kbd> on Mac, <kbd>Ctrl</kbd> + <kbd>R</kbd> on PC )
 > 2. Right click on the Ruler, and select your desired units. Otherwise, the script will use the Document's selected units by default.
 > 3. Run the script and you will now get output as shown in the example below
-![specify-example-with-units](https://raw.githubusercontent.com/adamdehaven/Specify/master/specify-example-with-units.jpg)
+![specify-example](https://raw.githubusercontent.com/adamdehaven/Specify/master/specify-example.jpg)
 
 The units label is optional. A checkbox is included in the Specify dialog box that allows the user to turn the units label on or off.
 ##### Examples
