@@ -6,7 +6,7 @@ Illustrator script to specify the dimensions single or multiple objects, or to s
 [![GitHub issues](https://img.shields.io/github/issues/adamdehaven/Specify.svg?maxAge=3600)](https://github.com/adamdehaven/Specify/issues) 
 [![license](https://img.shields.io/github/license/adamdehaven/Specify.svg?maxAge=3600)](https://raw.githubusercontent.com/adamdehaven/Specify/master/LICENSE)
 
-![specify-dialog](https://raw.githubusercontent.com/adamdehaven/Specify/master/specify-example.jpg)
+![specify-example](https://raw.githubusercontent.com/adamdehaven/Specify/master/specify-example.jpg)
 
 ##### Save to Default Scripts
 > To allow the script to show as an option within the default `Scripts` menu, save the script in the following location _(path shown is for Mac. Your actual path may vary)_
@@ -31,7 +31,7 @@ File > Scripts > Other Script...
 ```
 
 #### Specify Dialog
-![specify-dialog](https://raw.githubusercontent.com/adamdehaven/Specify/master/specify-dialog.png)
+![specify-dialog-with-options](https://raw.githubusercontent.com/adamdehaven/Specify/master/specify-dialog-with-options.png)
 
 #### Dimension Single or Multiple Objects
 Select a single object (or group) or multiple objects on your artboard and [run the script](#how-to-run) within Illustrator.
