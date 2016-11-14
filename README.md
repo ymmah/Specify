@@ -33,7 +33,7 @@ File > Scripts > Other Script...
 #### Specify Dialog
 After choosing to run the script, you will be presented with a dialog that allows you to choose which dimension(s) to specify. The dialog also allows you to edit the default options. **Any changes to the options panel will persist until you close the application (even if you run the script in another document).**
 
-![specify-dialog-with-options](https://raw.githubusercontent.com/adamdehaven/Specify/master/specify-dialog-with-options.png)
+![Specify dialog example](specify-dialog.png)
 
 #### Dimension Single or Multiple Objects
 Select a single object (or group) or multiple objects on your artboard and [run the script](#how-to-run) within Illustrator.
