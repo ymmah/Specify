@@ -2,7 +2,7 @@
 Illustrator script to specify the dimensions single or multiple objects, or to specify the dimensions between two objects.
 
 [![GitHub release](https://img.shields.io/github/release/adamdehaven/Specify.svg?maxAge=3600)](https://github.com/adamdehaven/Specify/archive/master.zip) 
-[![GitHub commits](https://img.shields.io/github/commits-since/adamdehaven/Specify/v1.1.svg?maxAge=3600)](https://github.com/adamdehaven/Specify/compare/v1.1...master) 
+[![GitHub commits](https://img.shields.io/github/commits-since/adamdehaven/Specify/v1.2.svg?maxAge=3600)](https://github.com/adamdehaven/Specify/compare/v1.2...master) 
 [![GitHub issues](https://img.shields.io/github/issues/adamdehaven/Specify.svg?maxAge=3600)](https://github.com/adamdehaven/Specify/issues) 
 [![license](https://img.shields.io/github/license/adamdehaven/Specify.svg?maxAge=3600)](https://raw.githubusercontent.com/adamdehaven/Specify/master/LICENSE)
 
@@ -31,6 +31,8 @@ File > Scripts > Other Script...
 ```
 
 #### Specify Dialog
+After choosing to run the script, you will be presented with a dialog that allows you to choose which dimension(s) to specify. The dialog also allows you to edit the default options. **Any changes to the options panel will persist until you close the application (even if you run the script in another document).**
+
 ![specify-dialog-with-options](https://raw.githubusercontent.com/adamdehaven/Specify/master/specify-dialog-with-options.png)
 
 #### Dimension Single or Multiple Objects
