@@ -45,6 +45,9 @@ Select two objects and [run the script](#how-to-run) within Illustrator.
 
 With two objects selected, the script will display a new option within the dialog box, **Dimension between objects**. When checked, this option will specify the selected dimension(s) between the two chosen objects.
 
+#### Example
+![specify-workplace-example](https://raw.githubusercontent.com/adamdehaven/Specify/master/specify-workplace-example.jpg)
+
 #### Units
 The script automatically dimensions objects based on the Document's default units. To dimension in different units (i.e. Inches, Centimeters, etc.) follow the instructions below:
 > 1. In your document, select show Rulers via `View > Rulers > Show Rulers` ( <kbd>⌘Cmd</kbd> + <kbd>R</kbd> on Mac, <kbd>Ctrl</kbd> + <kbd>R</kbd> on PC )
@@ -59,6 +62,3 @@ Units Label On:
 
 Units Label Off: 
 > **220.00**
-
-#### Workplace Example
-![specify-workplace-example](https://raw.githubusercontent.com/adamdehaven/Specify/master/specify-workplace-example.jpg)
