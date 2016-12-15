@@ -59,3 +59,6 @@ Units Label On:
 
 Units Label Off: 
 > **220.00**
+
+#### Workplace Example
+![specify-workplace-example](https://raw.githubusercontent.com/adamdehaven/Specify/master/specify-workplace-example.jpg)
