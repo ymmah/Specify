@@ -1,7 +1,7 @@
 ﻿/**
  * Specify
  * =======
- * Version: 1.2.1
+ * Version: 1.2.2
  * https://github.com/adamdehaven/Specify
  *
  * Adam DeHaven
@@ -358,7 +358,7 @@ if (app.documents.length > 0) {
 
   // Spec a single object
   function specSingle(bound, where) {
-
+    // unlock SPECS layer
     specsLayer.locked = false;
 
     // width and height
@@ -378,38 +378,34 @@ if (app.documents.length > 0) {
     var dir = 1;
 
     switch (where) {
-
-    case "Top":
-      a = bound[0];
-      b = bound[2];
-      c = bound[1];
-      xy = "x";
-      dir = 1;
-      break;
-
-    case "Right":
-      a = bound[1];
-      b = bound[3];
-      c = bound[2];
-      xy = "y";
-      dir = 1;
-      break;
-
-    case "Bottom":
-      a = bound[0];
-      b = bound[2];
-      c = bound[3];
-      xy = "x";
-      dir = -1;
-      break;
-
-    case "Left":
-      a = bound[1];
-      b = bound[3];
-      c = bound[0];
-      xy = "y";
-      dir = -1;
-      break;
+      case "Top":
+        a = bound[0];
+        b = bound[2];
+        c = bound[1];
+        xy = "x";
+        dir = 1;
+        break;
+      case "Right":
+        a = bound[1];
+        b = bound[3];
+        c = bound[2];
+        xy = "y";
+        dir = 1;
+        break;
+      case "Bottom":
+        a = bound[0];
+        b = bound[2];
+        c = bound[3];
+        xy = "x";
+        dir = -1;
+        break;
+      case "Left":
+        a = bound[1];
+        b = bound[3];
+        c = bound[0];
+        xy = "y";
+        dir = -1;
+        break;
     }
 
     // Create the measurement lines
@@ -472,12 +468,14 @@ if (app.documents.length > 0) {
     for (var i = 0; i < lines.length; i++) {
       var p = doc.pathItems.add();
       p.setEntirePath(lines[i]);
+      p.strokeDashes = []; // Prevent dashed SPEC lines
       setLineStyle(p, color);
       specgroup.push(p);
     }
 
     group(specsLayer, specgroup);
 
+    // re-lock SPECS layer
     specsLayer.locked = true;
 
   }
