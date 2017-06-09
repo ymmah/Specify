@@ -37,6 +37,9 @@ if (app.documents.length > 0) {
   // Decimals
   var setDecimals = 2;
   var defaultDecimals = $.getenv("Specify_defaultDecimals") ? $.getenv("Specify_defaultDecimals") : setDecimals;
+  // Scale
+  var setScale = 1;
+  var defaultScale = $.getenv("Specify_defaultScale") ? $.getenv("Specify_defaultScale") : setScale;
 
   /*=====================================
   =            Create Dialog            =
@@ -189,7 +192,17 @@ if (app.documents.length > 0) {
       restoreDefaultsButton.enabled = true;
   }
 
-  // Info text
+  // Scale multiplier box
+  scaleMultiplierGroup = optionsPanel.add("group");
+  scaleMultiplierGroup.orientation = "row";
+  scaleMultiplierLabel = scaleMultiplierGroup.add("statictext", undefined, "Scale multiplier:");
+  (scaleMultiplierInput = scaleMultiplierGroup.add("edittext", undefined, defaultScale)).helpTip = "Enter the scale at which to output the dimension labels.\nFor example, if the document shows 1/4 scale, enter 0.25\nDefault: " + setScale;
+  scaleMultiplierInput.characters = 5;
+  scaleMultiplierInput.onActivate = function () {
+      restoreDefaultsButton.enabled = true;
+  }
+
+  // Info text  
   infoText = optionsPanel.add("statictext", undefined, "Options are persistent until application is closed");
   infoText.margins = 20;
   // Disable to make text appear subtle
@@ -210,6 +223,7 @@ if (app.documents.length > 0) {
     colorInputGreen.text = setGreen;
     colorInputBlue.text = setBlue;
     decimalPlacesInput.text = setDecimals;
+    scaleMultiplierInput.text = setScale;
     restoreDefaultsButton.enabled = false;
     // Unset environmental variables
     $.setenv("Specify_defaultUnits", "");
@@ -218,6 +232,7 @@ if (app.documents.length > 0) {
     $.setenv("Specify_defaultColorGreen", "");
     $.setenv("Specify_defaultColorBlue", "");
     $.setenv("Specify_defaultDecimals", "");
+    $.setenv("Specify_defaultScale", "");
   }
 
   /*----------  Button Group  ----------*/
@@ -255,6 +270,9 @@ if (app.documents.length > 0) {
 
   // Declare global decimals var
   var decimals;
+  
+  // Declare global scale var
+  var scale;
 
   // Gap between measurement lines and object
   var gap = 4;
@@ -304,6 +322,14 @@ if (app.documents.length > 0) {
       $.setenv("Specify_defaultDecimals", decimals);
     }
 
+    var validScale = /^[0-9]\d*(\.\d+)?$/.test(scaleMultiplierInput.text);
+    if (validScale) {
+      // Number of decimal places in measurement
+      scale = scaleMultiplierInput.text;
+      // Set environmental variable
+      $.setenv("Specify_defaultScale", scale);
+    }
+
     if (selectedItems < 1) {
       beep();
       alert("Please select at least 1 object and try again.");
@@ -330,6 +356,12 @@ if (app.documents.length > 0) {
       colorInputRed.text = defaultColorRed;
       colorInputGreen.text = defaultColorGreen;
       colorInputBlue.text = defaultColorBlue;
+    } else if (!validScale) {
+        // If scaleMultiplierInput.text is not valid
+        beep();
+        alert("Scale must be a positive integer or decimal. \n\nExample: 0.25  \nExample: 2  \nExample: 0.475");
+        scaleMultiplierInput.active = true;
+        scaleMultiplierInput.text = setScale;
     } else if (!validDecimalPlaces) {
       // If decimalPlacesInput.text is not numeric
       beep();
@@ -569,7 +601,7 @@ if (app.documents.length > 0) {
     // Set environmental variable
     $.setenv("Specify_defaultUnits", displayUnitsLabel);
 
-    var v = val;
+    var v = val * scale;
     var unitsLabel = "";
 
     switch (doc.rulerUnits) {
