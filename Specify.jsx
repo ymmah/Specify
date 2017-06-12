@@ -40,9 +40,15 @@ if (app.documents.length > 0) {
   var setDecimals = 2;
   var defaultDecimals = $.getenv("Specify_defaultDecimals") ? $.getenv("Specify_defaultDecimals") : setDecimals;
   // Scale
-  var setScale = 1;
+  var setScale = 0;
   var defaultScale = $.getenv("Specify_defaultScale") ? $.getenv("Specify_defaultScale") : setScale;
-
+  // Use Custom Units
+  var setUseCustomUnits = false;
+  var defaultUseCustomUnits = $.getenv("Specify_defaultUseCustomUnits") ? convertToBoolean($.getenv("Specify_defaultUseCustomUnits")) : setUseCustomUnits;
+  // Custom Units
+  var setCustomUnits = getRulerUnits();
+  var defaultCustomUnits = $.getenv("Specify_defaultCustomUnits") ? $.getenv("Specify_defaultCustomUnits") : setCustomUnits;
+ 
   //
   // Create Dialog
   // ===========================
@@ -52,9 +58,37 @@ if (app.documents.length > 0) {
   specifyDialogBox.alignChildren = "left";
 
   //
+  // Custom Scale Panel
+  // ===========================
+  scalePanel = specifyDialogBox.add("panel", undefined, "SCALE");
+  scalePanel.orientation = "column";
+  scalePanel.margins = 20;
+  scalePanel.alignChildren = "left";
+  customScaleInfo = scalePanel.add("statictext", undefined, "Define the scale of the artwork/document.");
+
+  // Scale multiplier box
+  customScaleGroup = scalePanel.add("group");
+  customScaleGroup.orientation = "row";
+  customScaleLabel = customScaleGroup.add("statictext", undefined, "Scale:");
+  (customScaleDropdown = customScaleGroup.add("dropdownlist")).helpTip = "Choose the scale of the artwork/document. \n\nExample: Choosing '1/4' will indicate the artwork is drawn at \none-fourth scale, resulting in dimension values that are 4x their \ndrawn dimensions.\n\nDefault: 1/1";
+  for(var n = 1; n < 100; n++) {
+      if(n == 1) {
+          customScaleDropdown.add("item", "1/" + n + "    (Default)");
+          customScaleDropdown.add("separator");
+      } else {
+          customScaleDropdown.add("item", "1/" + n);
+      }
+  }  
+  customScaleDropdown.selection = defaultScale;
+  customScaleDropdown.onChange = function () {
+      restoreDefaultsButton.enabled = true;
+      infoText.enabled = true;
+  };
+
+  //
   // Dimension Panel
   // ===========================
-  dimensionPanel = specifyDialogBox.add("panel", undefined, "Select which dimension(s) to specify");
+  dimensionPanel = specifyDialogBox.add("panel", undefined, "SELECT DIMENSION(S) TO SPECIFY");
   dimensionPanel.orientation = "column";
   dimensionPanel.alignment = "fill";
   dimensionPanel.margins = [20, 20, 20, 10];
@@ -111,23 +145,19 @@ if (app.documents.length > 0) {
       leftCheckbox.value = false;
       leftCheckbox.enabled = true;
     }
-  }
+  };
 
   //
   // Options Panel
   // ===========================
-  optionsPanel = specifyDialogBox.add("panel", undefined, "Options");
+  optionsPanel = specifyDialogBox.add("panel", undefined, "OPTIONS");
   optionsPanel.orientation = "column";
   optionsPanel.margins = 20;
   optionsPanel.alignChildren = "left";
 
-  // Add options panel checkboxes
-  (units = optionsPanel.add("checkbox", undefined, "Include units label(s)")).helpTip = "When checked, inserts the units label alongside\nthe outputted dimension.\nExample: 220 px";
-  units.value = defaultUnits;
-
   // If exactly 2 objects are selected, give user option to dimension BETWEEN them
   if (selectedItems == 2) {
-    (between = optionsPanel.add("checkbox", undefined, "Dimension between objects")).helpTip = "When checked, return the distance between\nthe 2 objects for the selected dimensions.";
+    (between = optionsPanel.add("checkbox", undefined, "Dimension between selected objects")).helpTip = "When checked, return the distance between\nthe 2 objects for the selected dimensions.";
     between.value = false;
   }
 
@@ -135,7 +165,7 @@ if (app.documents.length > 0) {
   fontGroup = optionsPanel.add("group");
   fontGroup.orientation = "row";
   fontLabel = fontGroup.add("statictext", undefined, "Font size:");
-  (fontSizeInput = fontGroup.add("edittext", undefined, defaultFontSize)).helpTip = "Enter the desired font size for the dimension label(s).\nDefault: " + setFontSize;
+  (fontSizeInput = fontGroup.add("edittext", undefined, defaultFontSize)).helpTip = "Enter the desired font size for the dimension label(s).\n\nDefault: " + setFontSize;
   fontUnitsLabelText = "";
   switch (doc.rulerUnits) {
       case RulerUnits.Picas:
@@ -160,6 +190,7 @@ if (app.documents.length > 0) {
   fontSizeInput.characters = 5;
   fontSizeInput.onActivate = function () {
       restoreDefaultsButton.enabled = true;
+      infoText.enabled = true;
   }
 
   // Add Color Group
@@ -167,58 +198,110 @@ if (app.documents.length > 0) {
   colorGroup.orientation = "row";
   colorLabel = colorGroup.add("statictext", undefined, "Label color (RGB):");
   // Red
-  (colorInputRed = colorGroup.add("edittext", undefined, defaultColorRed)).helpTip = "Enter the RGB red color value to use for dimension label(s).\nDefault: " + setRed;
+  (colorInputRed = colorGroup.add("edittext", undefined, defaultColorRed)).helpTip = "Enter the RGB red color value to use for dimension label(s).\n\nDefault: " + setRed;
   colorInputRed.characters = 3;
   // Green
-  (colorInputGreen = colorGroup.add("edittext", undefined, defaultColorGreen)).helpTip = "Enter the RGB green color value to use for dimension label(s).\nDefault: " + setGreen;
+  (colorInputGreen = colorGroup.add("edittext", undefined, defaultColorGreen)).helpTip = "Enter the RGB green color value to use for dimension label(s).\n\nDefault: " + setGreen;
   colorInputGreen.characters = 3;
   // Blue
-  (colorInputBlue = colorGroup.add("edittext", undefined, defaultColorBlue)).helpTip = "Enter the RGB blue color value to use for dimension label(s).\nDefault: " + setBlue;
+  (colorInputBlue = colorGroup.add("edittext", undefined, defaultColorBlue)).helpTip = "Enter the RGB blue color value to use for dimension label(s).\n\nDefault: " + setBlue;
   colorInputBlue.characters = 3;
 
   colorInputRed.onActivate = function () {
       restoreDefaultsButton.enabled = true;
-  }
+      infoText.enabled = true;
+  };
+  colorInputRed.onChange = function () {
+      colorInputRed.text = colorInputRed.text.replace(/[^0-9]/g, "");
+  };
+
   colorInputGreen.onActivate = function () {
       restoreDefaultsButton.enabled = true;
-  }
+      infoText.enabled = true;
+  };
+  colorInputGreen.onChange = function () {
+      colorInputGreen.text = colorInputGreen.text.replace(/[^0-9]/g, "");
+  };
+
   colorInputBlue.onActivate = function () {
       restoreDefaultsButton.enabled = true;
-  }
+      infoText.enabled = true;
+  };
+  colorInputBlue.onChange = function () {
+      colorInputBlue.text = colorInputBlue.text.replace(/[^0-9]/g, "");
+  };
 
   // Add decimal places box
   decimalPlacesGroup = optionsPanel.add("group");
   decimalPlacesGroup.orientation = "row";
   decimalPlacesLabel = decimalPlacesGroup.add("statictext", undefined, "Num. of decimal places displayed:");
-  (decimalPlacesInput = decimalPlacesGroup.add("edittext", undefined, defaultDecimals)).helpTip = "Enter the desired number of decimal places to\ndisplay in the label dimensions.\nDefault: " + setDecimals;
+  (decimalPlacesInput = decimalPlacesGroup.add("edittext", undefined, defaultDecimals)).helpTip = "Enter the desired number of decimal places to\ndisplay in the label dimensions.\n\nDefault: " + setDecimals;
   decimalPlacesInput.characters = 4;
   decimalPlacesInput.onActivate = function () {
       restoreDefaultsButton.enabled = true;
-  }
+      infoText.enabled = true;
+  };
+  decimalPlacesInput.onChange = function () {
+      decimalPlacesInput.text = decimalPlacesInput.text.replace(/[^0-9]/g, "");
+  };
 
-  // Scale multiplier box
-  scaleMultiplierGroup = optionsPanel.add("group");
-  scaleMultiplierGroup.orientation = "row";
-  scaleMultiplierLabel = scaleMultiplierGroup.add("statictext", undefined, "Scale multiplier:");
-  (scaleMultiplierInput = scaleMultiplierGroup.add("edittext", undefined, defaultScale)).helpTip = "Enter the scale at which to output the dimension labels.\nFor example, if the document shows 1/4 scale, enter 0.25\nDefault: " + setScale;
-  scaleMultiplierInput.characters = 5;
-  scaleMultiplierInput.onActivate = function () {
+  // Show/hide units
+  (units = optionsPanel.add("checkbox", undefined, "Include units label(s)")).helpTip = "When checked, inserts the units label alongside\nthe outputted dimension.\nExample: 220 px";
+  units.value = defaultUnits;
+  units.onClick = function() {
+     if(units.value == false) {
+          useCustomUnits.value = false;
+          customUnitsInput.text = getRulerUnits ();
+          customUnitsInput.enabled = false;
+      }
+  };
+
+  // Add options panel checkboxes
+  (useCustomUnits = optionsPanel.add("checkbox", undefined, "Customize Units Label")).helpTip = "When checked, allows user to customize\nthe text of the units label.\nExample: ft";
+  useCustomUnits.value = defaultUseCustomUnits;
+  useCustomUnits.onClick = function() {
+     if(useCustomUnits.value == true) {
+          customUnitsInput.enabled = true;
+      } else {
+          customUnitsInput.text = getRulerUnits ();
+          customUnitsInput.enabled = false;
+      }
+  };
+
+  // Custom Units box
+  customUnitsGroup = optionsPanel.add("group");
+  customUnitsGroup.orientation = "row";
+  customUnitsLabel = customUnitsGroup.add("statictext", undefined, "Custom Units Label:");
+  (customUnitsInput = customUnitsGroup.add("edittext", undefined, defaultCustomUnits)).helpTip = "Enter the string to display after the dimension \nnumber when using a custom scale.\n\nDefault: " + setCustomUnits;
+  customUnitsInput.enabled = defaultUseCustomUnits;
+  customUnitsInput.characters = 20;
+  customUnitsInput.onChange = function () {
       restoreDefaultsButton.enabled = true;
-  }
+      infoText.enabled = true;
+      customUnitsInput.text = customUnitsInput.text.replace(/[^ a-zA-Z]/g, "");
+  };
+
+  //
+  // Restore Defaults Group
+  // ===========================
+  defaultsPanel = specifyDialogBox.add("panel", undefined, "RESTORE DEFAULTS");
+  defaultsPanel.orientation = "column";
+  defaultsPanel.margins = 20;
+  defaultsPanel.alignChildren = "left";
 
   // Info text
-  infoText = optionsPanel.add("statictext", undefined, "Options are persistent until application is closed");
+  infoText = defaultsPanel.add("statictext", undefined, "Options are persistent until application is closed.");
   infoText.margins = 20;
   // Disable to make text appear subtle
   infoText.enabled = false;
 
   // Reset options button
-  restoreDefaultsButton = optionsPanel.add("button", undefined, "Restore Defaults");
+  restoreDefaultsButton = defaultsPanel.add("button", undefined, "Restore Defaults");
   restoreDefaultsButton.alignment = "left";
-  restoreDefaultsButton.enabled = (setFontSize != defaultFontSize || setRed != defaultColorRed || setGreen != defaultColorGreen || setBlue != defaultColorBlue || setDecimals != defaultDecimals || setScale != defaultScale ? true : false);
+  restoreDefaultsButton.enabled = (setFontSize != defaultFontSize || setRed != defaultColorRed || setGreen != defaultColorGreen || setBlue != defaultColorBlue || setDecimals != defaultDecimals || setScale != defaultScale || setCustomUnits != defaultCustomUnits ? true : false);
   restoreDefaultsButton.onClick = function () {
     restoreDefaults();
-  }
+  };
 
   function restoreDefaults() {
     units.value = setUnits;
@@ -227,7 +310,10 @@ if (app.documents.length > 0) {
     colorInputGreen.text = setGreen;
     colorInputBlue.text = setBlue;
     decimalPlacesInput.text = setDecimals;
-    scaleMultiplierInput.text = setScale;
+    customScaleDropdown.selection = setScale;
+    customUnitsInput.text = setCustomUnits;
+    useCustomUnits.value = false;
+    customUnitsInput.enabled = false;
     restoreDefaultsButton.enabled = false;
     // Unset environmental variables
     $.setenv("Specify_defaultUnits", "");
@@ -237,7 +323,9 @@ if (app.documents.length > 0) {
     $.setenv("Specify_defaultColorBlue", "");
     $.setenv("Specify_defaultDecimals", "");
     $.setenv("Specify_defaultScale", "");
-  }
+    $.setenv("Specify_defaultUseCustomUnits", "");
+    $.setenv("Specify_defaultCustomUnits", "");
+  };
 
   //
   // Button Group 
@@ -251,7 +339,7 @@ if (app.documents.length > 0) {
   cancelButton = buttonGroup.add("button", undefined, "Cancel");
   cancelButton.onClick = function () {
     specifyDialogBox.close();
-  }
+  };
 
   // Specify button
   specifyButton = buttonGroup.add("button", undefined, "Specify Object(s)");
@@ -259,7 +347,7 @@ if (app.documents.length > 0) {
   specifyDialogBox.defaultElement = specifyButton;
   specifyButton.onClick = function () {
     startSpec();
-  }
+  };
 
   //
   // ===========================
@@ -312,9 +400,9 @@ if (app.documents.length > 0) {
     // Set bool for numeric vars
     var validFontSize = /^[0-9]{1,3}(\.[0-9]{1,3})?$/.test(fontSizeInput.text);
 
-    var validRedColor = /^[0-9]{1,3}$/.test(colorInputRed.text);
-    var validGreenColor = /^[0-9]{1,3}$/.test(colorInputGreen.text);
-    var validBlueColor = /^[0-9]{1,3}$/.test(colorInputBlue.text);
+    var validRedColor = /^[0-9]{1,3}$/.test(colorInputRed.text) && parseInt(colorInputRed.text) >= 0 && parseInt(colorInputRed.text) <= 255;
+    var validGreenColor = /^[0-9]{1,3}$/.test(colorInputGreen.text) && parseInt(colorInputGreen.text) >= 0 && parseInt(colorInputRed.text) <= 255;
+    var validBlueColor = /^[0-9]{1,3}$/.test(colorInputBlue.text) && parseInt(colorInputBlue.text) >= 0 && parseInt(colorInputBlue.text) <= 255;
     // If colors are valid, set variables
     if (validRedColor && validGreenColor && validBlueColor) {
       color.red = colorInputRed.text;
@@ -334,13 +422,10 @@ if (app.documents.length > 0) {
       $.setenv("Specify_defaultDecimals", decimals);
     }
 
-    var validScale = /^[0-9]\d*(\.\d+)?$/.test(scaleMultiplierInput.text);
-    if (validScale) {
-      // Number of decimal places in measurement
-      scale = scaleMultiplierInput.text;
-      // Set environmental variable
-      $.setenv("Specify_defaultScale", scale);
-    }
+    var theScale = parseInt(customScaleDropdown.selection.toString().replace(/1\//g, "").replace(/[^0-9]/g, ""));
+    scale = theScale;
+    // Set environmental variable
+    $.setenv("Specify_defaultScale", customScaleDropdown.selection.index);
 
     if (selectedItems < 1) {
       beep();
@@ -368,12 +453,6 @@ if (app.documents.length > 0) {
       colorInputRed.text = defaultColorRed;
       colorInputGreen.text = defaultColorGreen;
       colorInputBlue.text = defaultColorBlue;
-    } else if (!validScale) {
-        // If scaleMultiplierInput.text is not valid
-        beep();
-        alert("Scale must be a positive integer or decimal. \n\nExample: 0.25  \nExample: 2  \nExample: 3.475");
-        scaleMultiplierInput.active = true;
-        scaleMultiplierInput.text = setScale;
     } else if (!validDecimalPlaces) {
       // If decimalPlacesInput.text is not numeric
       beep();
@@ -398,7 +477,7 @@ if (app.documents.length > 0) {
       // Close dialog when finished
       specifyDialogBox.close();
     }
-  }
+  };
 
   //
   // Spec a single object 
@@ -524,7 +603,7 @@ if (app.documents.length > 0) {
     // re-lock SPECS layer
     specsLayer.locked = true;
 
-  }
+  };
   
   //
   // Spec the gap between 2 elements
@@ -586,7 +665,7 @@ if (app.documents.length > 0) {
       bound[2] = Math.max(a[2], b[2]);
     }
     specSingle(bound, where);
-  }
+  };
 
   //
   // Create a text label that specify the dimension 
@@ -655,8 +734,13 @@ if (app.documents.length > 0) {
           unitsLabel = " pt"; // add abbreviation
     }
 
+    // If custom scale and units label is set
+    if(useCustomUnits.value == true && customUnitsInput.enabled && customUnitsInput.text != getRulerUnits ()) {
+        unitsLabel = customUnitsInput.text;
+    }
+
     if (displayUnitsLabel) {
-      t.contents = v + unitsLabel;
+      t.contents = v + " " + unitsLabel;
     } else {
       t.contents = v;
     }
@@ -664,7 +748,7 @@ if (app.documents.length > 0) {
     t.left = x;
 
     return t;
-  }
+  };
 
   function convertToBoolean(string) {
     switch(string.toLowerCase()) {
@@ -675,7 +759,7 @@ if (app.documents.length > 0) {
             return false;
             break;
     }
-  }
+  };
 
   function setLineStyle(path, color) {
     path.filled = false;
@@ -683,7 +767,7 @@ if (app.documents.length > 0) {
     path.strokeColor = color;
     path.strokeWidth = 0.5;
     return path;
-  }
+  };
 
   // Group items in a layer
   function group(layer, items, isDuplicate) {
@@ -704,7 +788,7 @@ if (app.documents.length > 0) {
       }
     }
     return gg;
-  }
+  };
 
   function convertToPoints(value) {
       switch (doc.rulerUnits) {
@@ -727,7 +811,7 @@ if (app.documents.length > 0) {
               value = new UnitValue(value, "pt").as("pt");
       }
       return value;
-  }
+  };
 
   function convertToUnits(value) {
       switch (doc.rulerUnits) {
@@ -750,7 +834,31 @@ if (app.documents.length > 0) {
               value = new UnitValue(value, "pt").as("pt");
       }
       return value;
-  }
+  };
+
+  function getRulerUnits() {
+      var rulerUnits;
+      switch (doc.rulerUnits) {
+          case RulerUnits.Picas:
+              rulerUnits = "pc";
+              break;
+          case RulerUnits.Inches:
+              rulerUnits = "in";
+              break;
+          case RulerUnits.Millimeters:
+              rulerUnits = "mm";
+              break;
+          case RulerUnits.Centimeters:
+              rulerUnits = "cm";
+              break;
+          case RulerUnits.Pixels:
+              rulerUnits = "px";
+              break;
+          default:
+              rulerUnits = "pt";
+      }
+      return rulerUnits;
+  };
 
   //
   // Run Script 
