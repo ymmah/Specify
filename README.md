@@ -45,8 +45,8 @@ Select two objects and [run the script](#how-to-run) within Illustrator.
 
 With two objects selected, the script will display a new option within the dialog box, **Dimension between objects**. When checked, this option will specify the selected dimension(s) between the two chosen objects.
 
-#### Example
-![specify-workplace-example](https://raw.githubusercontent.com/adamdehaven/Specify/master/specify-workplace-example.jpg)
+#### Custom Scale
+Users may define the scale of the artwork/document being designed. For example, if you are designing an engineering drawing at 1/4 scale (or 1:4), you simply choose this ratio from the **Scale** dropdown menu, and then optionally enable a **Custom Units Label** that corresponds to the unit labels to output.
 
 #### Units
 The script automatically dimensions objects based on the Document's default units. To dimension in different units (i.e. Inches, Centimeters, etc.) follow the instructions below:
@@ -62,3 +62,6 @@ Units Label On:
 
 Units Label Off:
 > **220.00**
+
+#### Example
+![specify-workplace-example](https://raw.githubusercontent.com/adamdehaven/Specify/master/specify-workplace-example.jpg)
