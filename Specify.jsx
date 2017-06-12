@@ -72,7 +72,7 @@ if (app.documents.length > 0) {
   customScaleGroup.orientation = "row";
   customScaleLabel = customScaleGroup.add("statictext", undefined, "Scale:");
   (customScaleDropdown = customScaleGroup.add("dropdownlist")).helpTip = "Choose the scale of the artwork/document. \n\nExample: Choosing '1/4' will indicate the artwork is drawn at \none-fourth scale, resulting in dimension values that are 4x their \ndrawn dimensions.\n\nDefault: 1/1";
-  for(var n = 1; n < 100; n++) {
+  for(var n = 1; n <= 30; n++) {
       if(n == 1) {
           customScaleDropdown.add("item", "1/" + n + "    (Default)");
           customScaleDropdown.add("separator");
@@ -738,6 +738,8 @@ if (app.documents.length > 0) {
     // If custom scale and units label is set
     if(useCustomUnits.value == true && customUnitsInput.enabled && customUnitsInput.text != getRulerUnits ()) {
         unitsLabel = customUnitsInput.text;
+        $.setenv("Specify_defaultUseCustomUnits", true);        
+        $.setenv("Specify_defaultCustomUnits", unitsLabel);
     }
 
     if (displayUnitsLabel) {
