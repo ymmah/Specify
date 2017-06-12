@@ -65,6 +65,7 @@ if (app.documents.length > 0) {
   scalePanel.margins = 20;
   scalePanel.alignChildren = "left";
   customScaleInfo = scalePanel.add("statictext", undefined, "Define the scale of the artwork/document.");
+  customScaleInfo2 = scalePanel.add("statictext", undefined, "Example: 250 units at 1/4 scale displays as 1000");
 
   // Scale multiplier box
   customScaleGroup = scalePanel.add("group");
