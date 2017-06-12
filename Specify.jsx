@@ -1,7 +1,7 @@
 ﻿/**
  * Specify
- * =======
- * Version: 1.2.2
+ * =================================
+ * Version: 1.3
  * https://github.com/adamdehaven/Specify
  *
  * Adam DeHaven
@@ -20,7 +20,9 @@ if (app.documents.length > 0) {
   // Count selected items
   var selectedItems = parseInt(doc.selection.length, 10) || 0;
 
-  /*----------  Defaults  ----------*/
+  //
+  // Defaults 
+  // ===========================
   // Units
   var setUnits = true;
   var defaultUnits = $.getenv("Specify_defaultUnits") ? convertToBoolean($.getenv("Specify_defaultUnits")) : setUnits;
@@ -41,21 +43,21 @@ if (app.documents.length > 0) {
   var setScale = 1;
   var defaultScale = $.getenv("Specify_defaultScale") ? $.getenv("Specify_defaultScale") : setScale;
 
-  /*=====================================
-  =            Create Dialog            =
-  =====================================*/
+  //
+  // Create Dialog
+  // ===========================
 
   // Dialog Box
   var specifyDialogBox = new Window("dialog", "Specify");
   specifyDialogBox.alignChildren = "left";
 
-  // Dimension panel
+  //
+  // Dimension Panel
+  // ===========================
   dimensionPanel = specifyDialogBox.add("panel", undefined, "Select which dimension(s) to specify");
   dimensionPanel.orientation = "column";
   dimensionPanel.alignment = "fill";
   dimensionPanel.margins = [20, 20, 20, 10];
-
-  /*----------  Dimension Panel  ----------*/
   dimensionGroup = dimensionPanel.add("group");
   dimensionGroup.orientation = "row";
 
@@ -75,7 +77,7 @@ if (app.documents.length > 0) {
   (leftCheckbox = dimensionGroup.add("checkbox", undefined, "Left")).helpTip = "Dimension the left side of the object(s).";
   leftCheckbox.value = false;
 
-  /*----------  Select All  ----------*/
+  // Select All
   selectAllGroup = dimensionPanel.add("group");
   selectAllGroup.orientation = "row";
 
@@ -111,7 +113,9 @@ if (app.documents.length > 0) {
     }
   }
 
-  /*----------  Options panel  ----------*/
+  //
+  // Options Panel
+  // ===========================
   optionsPanel = specifyDialogBox.add("panel", undefined, "Options");
   optionsPanel.orientation = "column";
   optionsPanel.margins = 20;
@@ -158,7 +162,7 @@ if (app.documents.length > 0) {
       restoreDefaultsButton.enabled = true;
   }
 
-  /*----------  Add color group  ----------*/
+  // Add Color Group
   colorGroup = optionsPanel.add("group");
   colorGroup.orientation = "row";
   colorLabel = colorGroup.add("statictext", undefined, "Label color (RGB):");
@@ -202,7 +206,7 @@ if (app.documents.length > 0) {
       restoreDefaultsButton.enabled = true;
   }
 
-  // Info text  
+  // Info text
   infoText = optionsPanel.add("statictext", undefined, "Options are persistent until application is closed");
   infoText.margins = 20;
   // Disable to make text appear subtle
@@ -211,7 +215,7 @@ if (app.documents.length > 0) {
   // Reset options button
   restoreDefaultsButton = optionsPanel.add("button", undefined, "Restore Defaults");
   restoreDefaultsButton.alignment = "left";
-  restoreDefaultsButton.enabled = (setFontSize != defaultFontSize || setRed != defaultColorRed || setGreen != defaultColorGreen || setBlue != defaultColorBlue || setDecimals != defaultDecimals ? true : false);
+  restoreDefaultsButton.enabled = (setFontSize != defaultFontSize || setRed != defaultColorRed || setGreen != defaultColorGreen || setBlue != defaultColorBlue || setDecimals != defaultDecimals || setScale != defaultScale ? true : false);
   restoreDefaultsButton.onClick = function () {
     restoreDefaults();
   }
@@ -235,7 +239,9 @@ if (app.documents.length > 0) {
     $.setenv("Specify_defaultScale", "");
   }
 
-  /*----------  Button Group  ----------*/
+  //
+  // Button Group 
+  // ===========================
   buttonGroup = specifyDialogBox.add("group");
   buttonGroup.orientation = "row";
   buttonGroup.alignment = "right";
@@ -255,9 +261,13 @@ if (app.documents.length > 0) {
     startSpec();
   }
 
-  /*=====  End of Create Dialog  ======*/
+  //
+  // ===========================
+  // End Create Dialog
 
-  // SPEC layer
+  //
+  // SPEC Layer 
+  // ===========================
   try {
     var specsLayer = doc.layers["SPECS"];
   } catch (err) {
@@ -270,7 +280,7 @@ if (app.documents.length > 0) {
 
   // Declare global decimals var
   var decimals;
-  
+
   // Declare global scale var
   var scale;
 
@@ -280,7 +290,9 @@ if (app.documents.length > 0) {
   // Size of perpendicular measurement lines.
   var size = 6;
 
-  // Start the spec
+  //
+  // Start the Spec 
+  // ===========================
   function startSpec() {
 
     // Add all selected objects to array
@@ -359,7 +371,7 @@ if (app.documents.length > 0) {
     } else if (!validScale) {
         // If scaleMultiplierInput.text is not valid
         beep();
-        alert("Scale must be a positive integer or decimal. \n\nExample: 0.25  \nExample: 2  \nExample: 0.475");
+        alert("Scale must be a positive integer or decimal. \n\nExample: 0.25  \nExample: 2  \nExample: 3.475");
         scaleMultiplierInput.active = true;
         scaleMultiplierInput.text = setScale;
     } else if (!validDecimalPlaces) {
@@ -388,7 +400,9 @@ if (app.documents.length > 0) {
     }
   }
 
-  // Spec a single object
+  //
+  // Spec a single object 
+  // ===========================
   function specSingle(bound, where) {
     // unlock SPECS layer
     specsLayer.locked = false;
@@ -511,8 +525,10 @@ if (app.documents.length > 0) {
     specsLayer.locked = true;
 
   }
-
+  
+  //
   // Spec the gap between 2 elements
+  // ===========================
   function specDouble(item1, item2, where) {
 
     var bound = new Array(0, 0, 0, 0);
@@ -572,7 +588,9 @@ if (app.documents.length > 0) {
     specSingle(bound, where);
   }
 
-  // Create a text label that specify the dimension
+  //
+  // Create a text label that specify the dimension 
+  // ===========================
   function specLabel(val, x, y, color) {
 
     var t = doc.textFrames.add();
@@ -734,11 +752,9 @@ if (app.documents.length > 0) {
       return value;
   }
 
-  /*
-   ** ======================================
-   ** RUN SCRIPT
-   ** ======================================
-   */
+  //
+  // Run Script 
+  // ===========================
   switch (selectedItems) {
     case 0:
       beep();

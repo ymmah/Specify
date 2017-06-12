@@ -1,9 +1,9 @@
 # SPECIFY
 Illustrator script to specify the dimensions of single or multiple objects, or to specify the dimensions between two objects.
 
-[![GitHub release](https://img.shields.io/github/release/adamdehaven/Specify.svg?maxAge=3600)](https://github.com/adamdehaven/Specify/archive/master.zip) 
-[![GitHub commits](https://img.shields.io/github/commits-since/adamdehaven/Specify/v1.2.2.svg?maxAge=3600)](https://github.com/adamdehaven/Specify/compare/v1.2.2...master) 
-[![GitHub issues](https://img.shields.io/github/issues/adamdehaven/Specify.svg?maxAge=3600)](https://github.com/adamdehaven/Specify/issues) 
+[![GitHub release](https://img.shields.io/github/release/adamdehaven/Specify.svg?maxAge=3600)](https://github.com/adamdehaven/Specify/archive/master.zip)
+[![GitHub commits](https://img.shields.io/github/commits-since/adamdehaven/Specify/v1.3.svg?maxAge=3600)](https://github.com/adamdehaven/Specify/compare/v1.3...master)
+[![GitHub issues](https://img.shields.io/github/issues/adamdehaven/Specify.svg?maxAge=3600)](https://github.com/adamdehaven/Specify/issues)
 [![license](https://img.shields.io/github/license/adamdehaven/Specify.svg?maxAge=3600)](https://raw.githubusercontent.com/adamdehaven/Specify/master/LICENSE)
 
 ![specify-example](https://raw.githubusercontent.com/adamdehaven/Specify/master/specify-example.jpg)
@@ -57,8 +57,8 @@ The script automatically dimensions objects based on the Document's default unit
 
 The units label is optional. A checkbox is included in the Specify dialog box that allows the user to turn the units label on or off.
 ##### Examples
-Units Label On: 
+Units Label On:
 > **220.00 px**
 
-Units Label Off: 
+Units Label Off:
 > **220.00**
