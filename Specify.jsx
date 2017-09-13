@@ -57,6 +57,12 @@ if (app.documents.length > 0) {
   var specifyDialogBox = new Window("dialog", "Specify");
   specifyDialogBox.alignChildren = "left";
 
+  headerGroup = specifyDialogBox.add("group");
+  headerGroup.orientation = "row";
+  headerGroup.alignment = "center";
+  headerGroup.margins = [20, 0, 20, 0]; // [left, top, right, bottom]
+  specifyUpdate = headerGroup.add("statictext", undefined, "Updates & Info: https://github.com/adamdehaven/Specify");
+
   //
   // Custom Scale Panel
   // ===========================
@@ -333,8 +339,8 @@ if (app.documents.length > 0) {
   // ===========================
   buttonGroup = specifyDialogBox.add("group");
   buttonGroup.orientation = "row";
-  buttonGroup.alignment = "left";
-  buttonGroup.margins = [20, 0, 20, 0]; // [left, top, right, bottom]
+  buttonGroup.alignment = "right";
+  buttonGroup.margins = [20, 0, 20, 20]; // [left, top, right, bottom]
 
   // Cancel button
   cancelButton = buttonGroup.add("button", undefined, "Cancel");
@@ -349,12 +355,6 @@ if (app.documents.length > 0) {
   specifyButton.onClick = function () {
     startSpec();
   };
-
-  footerGroup = specifyDialogBox.add("group");
-  footerGroup.orientation = "row";
-  footerGroup.alignment = "center";
-  footerGroup.margins = [20, 0, 20, 20]; // [left, top, right, bottom]
-  specifyUpdate = footerGroup.add("statictext", undefined, "Updates & Info: https://github.com/adamdehaven/Specify");
 
   //
   // ===========================
