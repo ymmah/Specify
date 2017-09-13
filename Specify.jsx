@@ -21,7 +21,7 @@ if (app.documents.length > 0) {
   var selectedItems = parseInt(doc.selection.length, 10) || 0;
 
   //
-  // Defaults 
+  // Defaults
   // ===========================
   // Units
   var setUnits = true;
@@ -48,7 +48,7 @@ if (app.documents.length > 0) {
   // Custom Units
   var setCustomUnits = getRulerUnits();
   var defaultCustomUnits = $.getenv("Specify_defaultCustomUnits") ? $.getenv("Specify_defaultCustomUnits") : setCustomUnits;
- 
+
   //
   // Create Dialog
   // ===========================
@@ -79,7 +79,7 @@ if (app.documents.length > 0) {
       } else {
           customScaleDropdown.add("item", "1/" + n);
       }
-  }  
+  }
   customScaleDropdown.selection = defaultScale;
   customScaleDropdown.onChange = function () {
       restoreDefaultsButton.enabled = true;
@@ -329,12 +329,12 @@ if (app.documents.length > 0) {
   };
 
   //
-  // Button Group 
+  // Button Group
   // ===========================
   buttonGroup = specifyDialogBox.add("group");
   buttonGroup.orientation = "row";
-  buttonGroup.alignment = "right";
-  buttonGroup.margins = [20, 0, 20, 20]; // [left, top, right, bottom]
+  buttonGroup.alignment = "left";
+  buttonGroup.margins = [20, 0, 20, 0]; // [left, top, right, bottom]
 
   // Cancel button
   cancelButton = buttonGroup.add("button", undefined, "Cancel");
@@ -350,12 +350,18 @@ if (app.documents.length > 0) {
     startSpec();
   };
 
+  footerGroup = specifyDialogBox.add("group");
+  footerGroup.orientation = "row";
+  footerGroup.alignment = "center";
+  footerGroup.margins = [20, 0, 20, 20]; // [left, top, right, bottom]
+  specifyUpdate = footerGroup.add("statictext", undefined, "Updates & Info: https://github.com/adamdehaven/Specify");
+
   //
   // ===========================
   // End Create Dialog
 
   //
-  // SPEC Layer 
+  // SPEC Layer
   // ===========================
   try {
     var specsLayer = doc.layers["SPECS"];
@@ -380,7 +386,7 @@ if (app.documents.length > 0) {
   var size = 6;
 
   //
-  // Start the Spec 
+  // Start the Spec
   // ===========================
   function startSpec() {
 
@@ -481,7 +487,7 @@ if (app.documents.length > 0) {
   };
 
   //
-  // Spec a single object 
+  // Spec a single object
   // ===========================
   function specSingle(bound, where) {
     // unlock SPECS layer
@@ -605,7 +611,7 @@ if (app.documents.length > 0) {
     specsLayer.locked = true;
 
   };
-  
+
   //
   // Spec the gap between 2 elements
   // ===========================
@@ -669,7 +675,7 @@ if (app.documents.length > 0) {
   };
 
   //
-  // Create a text label that specify the dimension 
+  // Create a text label that specify the dimension
   // ===========================
   function specLabel(val, x, y, color) {
 
@@ -738,7 +744,7 @@ if (app.documents.length > 0) {
     // If custom scale and units label is set
     if(useCustomUnits.value == true && customUnitsInput.enabled && customUnitsInput.text != getRulerUnits ()) {
         unitsLabel = customUnitsInput.text;
-        $.setenv("Specify_defaultUseCustomUnits", true);        
+        $.setenv("Specify_defaultUseCustomUnits", true);
         $.setenv("Specify_defaultCustomUnits", unitsLabel);
     }
 
@@ -864,7 +870,7 @@ if (app.documents.length > 0) {
   };
 
   //
-  // Run Script 
+  // Run Script
   // ===========================
   switch (selectedItems) {
     case 0:
