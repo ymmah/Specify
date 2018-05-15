@@ -9,7 +9,7 @@
  * @adamdehaven
  *
  * Additional info:
- * http://adamdehaven.com/blog/2015/05/dimension-adobe-illustrator-designs-with-a-simple-script/
+ * https://adamdehaven.com/blog/dimension-adobe-illustrator-designs-with-a-simple-script/
  * ====================
  */
 
