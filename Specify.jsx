@@ -1,7 +1,7 @@
 ﻿/**
  * Specify
  * =================================
- * Version: 1.3
+ * Version: 1.3.1
  * https://github.com/adamdehaven/Specify
  *
  * Adam DeHaven
@@ -172,7 +172,7 @@ if (app.documents.length > 0) {
   fontGroup = optionsPanel.add("group");
   fontGroup.orientation = "row";
   fontLabel = fontGroup.add("statictext", undefined, "Font size:");
-  (fontSizeInput = fontGroup.add("edittext", undefined, defaultFontSize)).helpTip = "Enter the desired font size for the dimension label(s).\n\nDefault: " + setFontSize;
+  (fontSizeInput = fontGroup.add("edittext", undefined, defaultFontSize)).helpTip = "Enter the desired font size for the dimension label(s). If value is less than one (e.g. 0.25) you must include a leading zero before the decimal point.\n\nDefault: " + setFontSize;
   fontUnitsLabelText = "";
   switch (doc.rulerUnits) {
       case RulerUnits.Picas:
@@ -199,7 +199,14 @@ if (app.documents.length > 0) {
       restoreDefaultsButton.enabled = true;
       infoText.enabled = true;
   }
-
+  fontSizeInput.onDeactivate = function () {
+      // If first character is decimal point, don't error, but instead
+      // add leading zero to string.
+      if ( fontSizeInput.text.charAt(0) == ".") {
+        fontSizeInput.text = "0" + fontSizeInput.text;
+        fontSizeInput.active = true;
+      }
+  }
   // Add Color Group
   colorGroup = optionsPanel.add("group");
   colorGroup.orientation = "row";

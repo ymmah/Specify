@@ -2,7 +2,7 @@
 Illustrator script to specify the dimensions of single or multiple objects, or to specify the dimensions between two objects.
 
 [![GitHub release](https://img.shields.io/github/release/adamdehaven/Specify.svg?maxAge=3600)](https://github.com/adamdehaven/Specify/archive/master.zip)
-[![GitHub commits](https://img.shields.io/github/commits-since/adamdehaven/Specify/v1.3.svg?maxAge=3600)](https://github.com/adamdehaven/Specify/compare/v1.3...master)
+[![GitHub commits](https://img.shields.io/github/commits-since/adamdehaven/Specify/v1.3.1.svg?maxAge=3600)](https://github.com/adamdehaven/Specify/compare/v1.3.1...master)
 [![GitHub issues](https://img.shields.io/github/issues/adamdehaven/Specify.svg?maxAge=3600)](https://github.com/adamdehaven/Specify/issues)
 [![license](https://img.shields.io/github/license/adamdehaven/Specify.svg?maxAge=3600)](https://raw.githubusercontent.com/adamdehaven/Specify/master/LICENSE)
 
