@@ -720,31 +720,37 @@ if (app.documents.length > 0) {
           v = new UnitValue(v, "pt").as("pc");
           var vd = v - Math.floor(v);
           vd = 12 * vd;
-          v = Math.floor(v) + "p" + vd.toFixed(decimals);
+          // v = Math.floor(v) + "p" + vd.toFixed(decimals); // use decimals
+          v = Math.floor(v) + "p" + convertToFraction(vd); // use fractions
           break;
         case RulerUnits.Inches:
           v = new UnitValue(v, "pt").as("in");
-          v = v.toFixed(decimals);
+          // v = v.toFixed(decimals); // use decimals
+          v = convertToFraction(v); // use fractions
           unitsLabel = " in"; // add abbreviation
           break;
         case RulerUnits.Millimeters:
           v = new UnitValue(v, "pt").as("mm");
-          v = v.toFixed(decimals);
+          // v = v.toFixed(decimals); // use decimals
+          v = convertToFraction(v); // use fractions
           unitsLabel = " mm"; // add abbreviation
           break;
         case RulerUnits.Centimeters:
           v = new UnitValue(v, "pt").as("cm");
-          v = v.toFixed(decimals);
+          // v = v.toFixed(decimals); // use decimals
+          v = convertToFraction(v); // use fractions
           unitsLabel = " cm"; // add abbreviation
           break;
         case RulerUnits.Pixels:
           v = new UnitValue(v, "pt").as("px");
-          v = v.toFixed(decimals);
+          // v = v.toFixed(decimals); // use decimals
+          v = convertToFraction(v); // use fractions
           unitsLabel = " px"; // add abbreviation
           break;
         default:
           v = new UnitValue(v, "pt").as("pt");
-          v = v.toFixed(decimals);
+          // v = v.toFixed(decimals); // use decimals
+          v = convertToFraction(v); // use fractions
           unitsLabel = " pt"; // add abbreviation
     }
 
@@ -874,6 +880,30 @@ if (app.documents.length > 0) {
               rulerUnits = "pt";
       }
       return rulerUnits;
+  };
+
+  function convertToFraction(decimalInput) {
+    var decimalInput = decimalInput;
+    var gcd = function(a, b) {
+      if (b < 0.0000001) return a; // Since there is a limited precision we need to limit the value.
+
+      return gcd(b, Math.floor(a % b)); // Discard any fractions due to limitations in precision.
+    };
+
+    var fraction = decimalInput;
+    var len = fraction.toString().length - 2;
+
+    var denominator = Math.pow(10, len);
+    var numerator = fraction * denominator;
+
+    var divisor = gcd(numerator, denominator);
+
+    numerator /= divisor;
+    denominator /= divisor;
+
+    var output = Math.floor(numerator) + '/' + Math.floor(denominator);
+
+    return output;
   };
 
   //
