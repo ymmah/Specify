@@ -882,13 +882,13 @@ if (app.documents.length > 0) {
       return rulerUnits;
   };
 
+  //
+  // Fraction Conversion
+  // ===========================
   function numberIsInteger(x) {
     return x % 1 === 0;
   };
 
-  //
-  // Fraction Conversion
-  // ===========================
   function HCF(u, v) {
         var U = u, V = v;
         while (true) {
@@ -924,17 +924,20 @@ if (app.documents.length > 0) {
         z=2;
       }
     }
+
     // if format of fraction is xx/xxx
     if (theDecimal.toString().length == 2 && num.toString().length == 3) {
-      //reduce by removing trailing 0's
+      // reduce by removing trailing 0's
       theDecimal = Math.round(Math.round(theDecimal)/10);
       num = Math.round(Math.round(num)/10);
     }
+
     // if format of fraction is xx/xx
     else if (theDecimal.toString().length == 2 && num.toString().length == 2) {
       theDecimal = Math.round(theDecimal/10);
       num = Math.round(num/10);
     }
+
     // get highest common factor to simplify
     var t = HCF(theDecimal, num);
 
