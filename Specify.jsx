@@ -882,6 +882,13 @@ if (app.documents.length > 0) {
       return rulerUnits;
   };
 
+  function numberIsInteger(x) {
+    return x % 1 === 0;
+  };
+
+  //
+  // Fraction Conversion
+  // ===========================
   function HCF(u, v) {
         var U = u, V = v;
         while (true) {
@@ -896,6 +903,10 @@ if (app.documents.length > 0) {
 
   // Convert decimals to fractions
   function convertToFraction(theDecimal) {
+
+    if ( numberIsInteger(theDecimal) ) {
+        return theDecimal;
+    }
 
     var theDecimal = theDecimal;
     var whole = String(theDecimal).split('.')[0];
@@ -932,6 +943,7 @@ if (app.documents.length > 0) {
 
     return theFraction;
   };
+  // ===== END Fraction Conversion
 
   //
   // Run Script
