@@ -720,37 +720,37 @@ if (app.documents.length > 0) {
           v = new UnitValue(v, "pt").as("pc");
           var vd = v - Math.floor(v);
           vd = 12 * vd;
-          v = Math.floor(v) + "p" + vd.toFixed(decimals); 
-          v = Math.floor(v) + "p" + convertToFraction(vd); // use fractions; comment out to use decimals
+          v = Math.floor(v) + "p" + vd.toFixed(decimals);
+          v = Math.floor(v) + "p" + convertToFraction(vd); // Remove/comment out this line to use decimals instead of fractions.
           break;
         case RulerUnits.Inches:
           v = new UnitValue(v, "pt").as("in");
           v = v.toFixed(decimals);
-          v = convertToFraction(v); // use fractions; comment out to use decimals
+          v = convertToFraction(v); // Remove/comment out this line to use decimals instead of fractions.
           unitsLabel = " in"; // add abbreviation
           break;
         case RulerUnits.Millimeters:
           v = new UnitValue(v, "pt").as("mm");
           v = v.toFixed(decimals);
-          v = convertToFraction(v); // use fractions; comment out to use decimals
+          v = convertToFraction(v); // Remove/comment out this line to use decimals instead of fractions.
           unitsLabel = " mm"; // add abbreviation
           break;
         case RulerUnits.Centimeters:
           v = new UnitValue(v, "pt").as("cm");
           v = v.toFixed(decimals);
-          v = convertToFraction(v); // use fractions; comment out to use decimals
+          v = convertToFraction(v); // Remove/comment out this line to use decimals instead of fractions.
           unitsLabel = " cm"; // add abbreviation
           break;
         case RulerUnits.Pixels:
           v = new UnitValue(v, "pt").as("px");
           v = v.toFixed(decimals);
-          v = convertToFraction(v); // use fractions; comment out to use decimals
+          v = convertToFraction(v); // Remove/comment out this line to use decimals instead of fractions.
           unitsLabel = " px"; // add abbreviation
           break;
         default:
           v = new UnitValue(v, "pt").as("pt");
           v = v.toFixed(decimals);
-          v = convertToFraction(v); // use fractions; comment out to use decimals
+          v = convertToFraction(v); // Remove/comment out this line to use decimals instead of fractions.
           unitsLabel = " pt"; // add abbreviation
     }
 
@@ -882,7 +882,7 @@ if (app.documents.length > 0) {
       return rulerUnits;
   };
 
-  function HCF(u, v) { 
+  function HCF(u, v) {
         var U = u, V = v;
         while (true) {
             if (!(U%=V)) {
@@ -891,7 +891,7 @@ if (app.documents.length > 0) {
             if (!(V%=U)) {
                 return U;
             }
-        } 
+        }
     };
 
   // Convert decimals to fractions
@@ -929,7 +929,7 @@ if (app.documents.length > 0) {
 
     // return the fraction after simplifying it
     var theFraction = ((whole==0) ? "" : whole+" ")+theDecimal/t+"/"+num/t;
-    
+
     return theFraction;
   };
 
