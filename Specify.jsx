@@ -720,37 +720,37 @@ if (app.documents.length > 0) {
           v = new UnitValue(v, "pt").as("pc");
           var vd = v - Math.floor(v);
           vd = 12 * vd;
-          // v = Math.floor(v) + "p" + vd.toFixed(decimals); // use decimals
-          v = Math.floor(v) + "p" + convertToFraction(vd); // use fractions
+          v = Math.floor(v) + "p" + vd.toFixed(decimals); 
+          v = Math.floor(v) + "p" + convertToFraction(vd); // use fractions; comment out to use decimals
           break;
         case RulerUnits.Inches:
           v = new UnitValue(v, "pt").as("in");
-          // v = v.toFixed(decimals); // use decimals
-          v = convertToFraction(v); // use fractions
+          v = v.toFixed(decimals);
+          v = convertToFraction(v); // use fractions; comment out to use decimals
           unitsLabel = " in"; // add abbreviation
           break;
         case RulerUnits.Millimeters:
           v = new UnitValue(v, "pt").as("mm");
-          // v = v.toFixed(decimals); // use decimals
-          v = convertToFraction(v); // use fractions
+          v = v.toFixed(decimals);
+          v = convertToFraction(v); // use fractions; comment out to use decimals
           unitsLabel = " mm"; // add abbreviation
           break;
         case RulerUnits.Centimeters:
           v = new UnitValue(v, "pt").as("cm");
-          // v = v.toFixed(decimals); // use decimals
-          v = convertToFraction(v); // use fractions
+          v = v.toFixed(decimals);
+          v = convertToFraction(v); // use fractions; comment out to use decimals
           unitsLabel = " cm"; // add abbreviation
           break;
         case RulerUnits.Pixels:
           v = new UnitValue(v, "pt").as("px");
-          // v = v.toFixed(decimals); // use decimals
-          v = convertToFraction(v); // use fractions
+          v = v.toFixed(decimals);
+          v = convertToFraction(v); // use fractions; comment out to use decimals
           unitsLabel = " px"; // add abbreviation
           break;
         default:
           v = new UnitValue(v, "pt").as("pt");
-          // v = v.toFixed(decimals); // use decimals
-          v = convertToFraction(v); // use fractions
+          v = v.toFixed(decimals);
+          v = convertToFraction(v); // use fractions; comment out to use decimals
           unitsLabel = " pt"; // add abbreviation
     }
 
@@ -882,28 +882,55 @@ if (app.documents.length > 0) {
       return rulerUnits;
   };
 
-  function convertToFraction(decimalInput) {
-    var decimalInput = decimalInput;
-    var gcd = function(a, b) {
-      if (b < 0.0000001) return a; // Since there is a limited precision we need to limit the value.
-
-      return gcd(b, Math.floor(a % b)); // Discard any fractions due to limitations in precision.
+  function HCF(u, v) { 
+        var U = u, V = v;
+        while (true) {
+            if (!(U%=V)) {
+                return V;
+            }
+            if (!(V%=U)) {
+                return U;
+            }
+        } 
     };
 
-    var fraction = decimalInput;
-    var len = fraction.toString().length - 2;
+  // Convert decimals to fractions
+  function convertToFraction(theDecimal) {
 
-    var denominator = Math.pow(10, len);
-    var numerator = fraction * denominator;
+    var theDecimal = theDecimal;
+    var whole = String(theDecimal).split('.')[0];
+    theDecimal = parseFloat("."+String(theDecimal).split('.')[1]);
+    var num = "1";
+    for(z=0; z<String(theDecimal).length-2; z++){
+      num += "0";
+    }
+    theDecimal = theDecimal*num;
+    num = parseInt(num);
+    for(z=2; z<theDecimal+1; z++) {
+      if(theDecimal%z==0 && num%z==0) {
+        theDecimal = theDecimal/z;
+        num = num/z;
+        z=2;
+      }
+    }
+    // if format of fraction is xx/xxx
+    if (theDecimal.toString().length == 2 && num.toString().length == 3) {
+      //reduce by removing trailing 0's
+      theDecimal = Math.round(Math.round(theDecimal)/10);
+      num = Math.round(Math.round(num)/10);
+    }
+    // if format of fraction is xx/xx
+    else if (theDecimal.toString().length == 2 && num.toString().length == 2) {
+      theDecimal = Math.round(theDecimal/10);
+      num = Math.round(num/10);
+    }
+    // get highest common factor to simplify
+    var t = HCF(theDecimal, num);
 
-    var divisor = gcd(numerator, denominator);
-
-    numerator /= divisor;
-    denominator /= divisor;
-
-    var output = Math.floor(numerator) + '/' + Math.floor(denominator);
-
-    return output;
+    // return the fraction after simplifying it
+    var theFraction = ((whole==0) ? "" : whole+" ")+theDecimal/t+"/"+num/t;
+    
+    return theFraction;
   };
 
   //
